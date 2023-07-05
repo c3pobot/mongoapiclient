@@ -1,139 +1,51 @@
 'use strict'
+const path = require('path')
+const MONGO_API_URI = process.env.MONGO_API_URI
 const fetch = require('node-fetch')
+let mongoReady = false
+const apiRequest = async(uri, collection, query, data)=>{
+  try{
+    let payload = {method: 'POST', headers: {'Content-Type': 'application/json'}, compress: true, timeout: 60000}
+    let body = { collection: collection, matchCondition: query, data: data }
+    payload.body = JSON.stringify(body)
+    let res = await fetch(path.join(MONGO_API_URI, uri), payload)
+    if(res.headers?.get('Content-Type')?.includes('application/json')) return await res.json()
+  }catch(e){
+    throw(e)
+  }
+}
+const checkMongo = async()=>{
+  try{
+    let res = await apiRequest('status')
+    if(res?.status === 'ok'){
+      mongoReady = true
+      console.log('Mongo connection successful...')
+    }else{
+      console.error('Mongo connection error. Will try again in 5 seconds')
+      setTimeout(checkMongo, 5000)
+    }
+  }catch(e){
+    console.error(e.name+' '+e.message+' '+e.type)
+    setTimeout(checkMongo, 5000)
+  }
+}
+checkMongo()
 const Cmds = {}
-const Request = async(method, collection, matchCondition, data, limitCount, skipCount )=>{
+Cmds.set = async(collection, query, data)=>{
   try{
-    const payload = { collection: collection, matchCondition: matchCondition, data: data, limitCount: limitCount, skipCount: skipCount }
-
-    const obj = await fetch(process.env.MONGO_API_URI+'/'+method, {
-      method: 'POST',
-      timeout: 600000,
-      compress: true,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    })
-    const resHeader = obj?.headers.get('content-type')
-    if(resHeader?.includes('application/json')) return await obj.json()
+    return await apiRequest('set', collection, query, data)
   }catch(e){
-    console.error(e);
+    throw(e)
   }
 }
-Cmds.aggregate = async(collection, matchCondition, data)=>{
+Cmds.find = async(collection, query, project)=>{
   try{
-    return await Request('aggregate', collection, matchCondition, data)
+    return await apiRequest('find', collection, query, project)
   }catch(e){
-    throw (e)
+    throw(e)
   }
 }
-Cmds.count = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('count', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
+module.exports.mongo = Cmds
+module.exports.mongoStatus = ()=>{
+  return mongoReady
 }
-Cmds.cmd = Request
-Cmds.del = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('del', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.delMany = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('delMany', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.find = async(collection, matchCondition, data)=>{
-  try{
-    let obj = await Request('find', collection, matchCondition, data)
-    if(!obj) obj = []
-    return obj
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.init = async()=>{
-  try{
-    const obj = await Request('status')
-    if(obj?.status === 'ok') return 1
-  }catch(e){
-    console.error(e);
-  }
-}
-Cmds.limit = async(collection, matchCondition, data, limitCount)=>{
-  try{
-    return await Request('limit', collection, matchCondition, data, limitCount)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.math = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('math', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.next = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('next', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.pull = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('pull', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.push = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('push', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.rep = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('rep', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.set = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('set', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.setMany = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('setMany', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.skip = async(collection, matchCondition, data, limitCount, skipCount)=>{
-  try{
-    return await Request('skip', collection, matchCondition, data, limitCount, skipCount)
-  }catch(e){
-    throw (e)
-  }
-}
-Cmds.unset = async(collection, matchCondition, data)=>{
-  try{
-    return await Request('unset', collection, matchCondition, data)
-  }catch(e){
-    throw (e)
-  }
-}
-module.exports = Cmds
