@@ -45,7 +45,7 @@ Cmds.find = async(collection, query, project)=>{
     throw(e)
   }
 }
-module.exports.mongo = Cmds
-module.exports.mongoStatus = ()=>{
+Cmds.mongoStatus = () =>{
   return mongoReady
 }
+module.exports = Cmds
