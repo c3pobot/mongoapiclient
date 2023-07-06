@@ -48,4 +48,18 @@ Cmds.find = async(collection, query, project)=>{
 Cmds.mongoStatus = () =>{
   return mongoReady
 }
+Cmds.rep = async(collection, query, data)=>{
+  try{
+    return await apiRequest('rep', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
+Cmds.aggregate = async(collection, query, pipline)=>{
+  try{
+    return await apiRequest('aggregate', collection, query, pipline)
+  }catch(e){
+    throw(e)
+  }
+}
 module.exports = Cmds
