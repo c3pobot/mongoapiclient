@@ -31,6 +31,13 @@ const checkMongo = async()=>{
 }
 checkMongo()
 const Cmds = {}
+Cmds.del = async(collection, query, data)=>{
+  try{
+    return await apiRequest('del', collection, query)
+  }catch(e){
+    throw(e)
+  }
+}
 Cmds.set = async(collection, query, data)=>{
   try{
     return await apiRequest('set', collection, query, data)
