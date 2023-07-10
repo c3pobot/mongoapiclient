@@ -1,4 +1,7 @@
 'use strict'
+const log = require('./logger')
+let logLevel = process.env.LOG_LEVEL || log.Level.INFO;
+log.setLevel(logLevel);
 const path = require('path')
 const MONGO_API_URI = process.env.MONGO_API_URI
 const fetch = require('node-fetch')
@@ -19,13 +22,13 @@ const checkMongo = async()=>{
     let res = await apiRequest('status')
     if(res?.status === 'ok'){
       mongoReady = true
-      console.log('Mongo connection successful...')
+      log.info('Mongo connection successful...')
     }else{
-      console.error('Mongo connection error. Will try again in 5 seconds')
+      log.error('Mongo connection error. Will try again in 5 seconds')
       setTimeout(checkMongo, 5000)
     }
   }catch(e){
-    console.error(e.name+' '+e.message+' '+e.type)
+    log.error(e.name+' '+e.message+' '+e.type)
     setTimeout(checkMongo, 5000)
   }
 }
