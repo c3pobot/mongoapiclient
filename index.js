@@ -36,7 +36,6 @@ const fetchRequest = async(uri, opts = {})=>{
     return await parseResponse(res)
   }catch(e){
     if(e?.error) return {error: e.name, message: e.message, type: e.type}
-    if(e?.status) return await parseResponse(e)
     throw(e)
   }
 }
@@ -47,6 +46,7 @@ const requestWithRetry = async(uri, opts = {}, count = 0)=>{
       count++
       return await requestWithRetry(uri, opts, count)
     }
+    return res
   }catch(e){
     throw(e)
   }
