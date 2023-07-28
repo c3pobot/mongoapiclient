@@ -104,6 +104,13 @@ Cmds.find = async(collection, query, project)=>{
 Cmds.mongoStatus = () =>{
   return mongoReady
 }
+Cmds.push = async(collection, query, data)=>{
+  try{
+    return await apiRequest('push', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
 Cmds.rep = async(collection, query, data)=>{
   try{
     return await apiRequest('rep', collection, query, data)
