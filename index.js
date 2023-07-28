@@ -74,7 +74,7 @@ const checkMongo = async()=>{
       setTimeout(checkMongo, 5000)
     }
   }catch(e){
-    log.error(e.name+' '+e.message+' '+e.type)
+    log.error(e)
     setTimeout(checkMongo, 5000)
   }
 }
