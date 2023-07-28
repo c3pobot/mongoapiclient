@@ -58,7 +58,7 @@ const apiRequest = async(uri, collection, query, data)=>{
     payload.body = JSON.stringify(body)
     let res = await requestWithRetry(path.join(MONGO_API_URI, uri), payload)
     if(res?.body) return res.body
-    log.error(res)
+    throw(res)
   }catch(e){
     throw(e)
   }
