@@ -6,13 +6,59 @@ const path = require('path')
 const MONGO_API_URI = process.env.MONGO_API_URI
 const fetch = require('node-fetch')
 let mongoReady = false
+const parseResponse = async(res)=>{
+  try{
+    if(!res) return
+    if (res?.status?.toString().startsWith('5')) {
+      throw('Bad status code '+res.status)
+    }
+    let body
+
+    if (res?.status === 204) {
+      body = null
+    } else if (res?.headers?.get('Content-Type')?.includes('application/json')) {
+      body = await res?.json()
+    } else {
+      body = await res?.text()
+    }
+    if(!body) body = res?.status
+    return {
+      status: res?.status,
+      body: body
+    }
+  }catch(e){
+    throw(e)
+  }
+}
+const fetchRequest = async(uri, opts = {})=>{
+  try{
+    let res = await fetch(uri, opts)
+    return await parseResponse(res)
+  }catch(e){
+    if(e?.error) return {error: e.name, message: e.message, type: e.type}
+    if(e?.status) return await parseResponse(e)
+    throw(e)
+  }
+}
+const requestWithRetry = async(uri, opts = {}, count = 0)=>{
+  try{
+    let res = await fetchRequest(uri, opts)
+    if(res?.error === 'FetchError' && 10 >= count){
+      count++
+      return await requestWithRetry(uri, opts, count)
+    }
+  }catch(e){
+    throw(e)
+  }
+}
 const apiRequest = async(uri, collection, query, data)=>{
   try{
     let payload = {method: 'POST', headers: {'Content-Type': 'application/json'}, compress: true, timeout: 60000}
     let body = { collection: collection, matchCondition: query, data: data }
     payload.body = JSON.stringify(body)
-    let res = await fetch(path.join(MONGO_API_URI, uri), payload)
-    if(res.headers?.get('Content-Type')?.includes('application/json')) return await res.json()
+    let res = await requestWithRetry(path.join(MONGO_API_URI, uri), payload)
+    if(res?.body) return res.body
+    log.error(res)
   }catch(e){
     throw(e)
   }
