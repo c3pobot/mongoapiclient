@@ -125,4 +125,11 @@ Cmds.aggregate = async(collection, query, pipline)=>{
     throw(e)
   }
 }
+Cmds.math = async(collection, query, data)=>{
+  try{
+    return await apiRequest('math', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
 module.exports = Cmds
