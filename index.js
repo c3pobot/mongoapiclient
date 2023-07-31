@@ -4,32 +4,9 @@ let logLevel = process.env.LOG_LEVEL || log.Level.INFO;
 log.setLevel(logLevel);
 const path = require('path')
 const MONGO_API_URI = process.env.MONGO_API_URI
-const fetch = require('node-fetch')
-let mongoReady = false
-const parseResponse = async(res)=>{
-  try{
-    if(!res) return
-    if (res?.status?.toString().startsWith('5')) {
-      throw('Bad status code '+res.status)
-    }
-    let body
+const fetch = require('./fetch')
+let mongoReady = false, retryCount = 10
 
-    if (res?.status === 204) {
-      body = null
-    } else if (res?.headers?.get('Content-Type')?.includes('application/json')) {
-      body = await res?.json()
-    } else {
-      body = await res?.text()
-    }
-    if(!body) body = res?.status
-    return {
-      status: res?.status,
-      body: body
-    }
-  }catch(e){
-    throw(e)
-  }
-}
 const fetchRequest = async(uri, opts = {})=>{
   try{
     let res = await fetch(uri, opts)
@@ -41,10 +18,14 @@ const fetchRequest = async(uri, opts = {})=>{
 }
 const requestWithRetry = async(uri, opts = {}, count = 0)=>{
   try{
-    let res = await fetchRequest(uri, opts)
-    if(res?.error === 'FetchError' && 10 >= count){
-      count++
-      return await requestWithRetry(uri, opts, count)
+    let res = await fetch(uri, opts)
+    if(res?.error === 'FetchError'){
+      if(count < retryCount){
+        count++
+        return await requestWithRetry(uri, opts, count)
+      }else{
+        throw(`tried request ${count} time(s) and errored with ${res.error} : ${res.message}`)
+      }
     }
     return res
   }catch(e){
@@ -57,8 +38,7 @@ const apiRequest = async(uri, collection, query, data)=>{
     let body = { collection: collection, matchCondition: query, data: data }
     payload.body = JSON.stringify(body)
     let res = await requestWithRetry(path.join(MONGO_API_URI, uri), payload)
-    if(res?.body) return res.body
-    throw(res)
+    return res?.body
   }catch(e){
     throw(e)
   }
@@ -128,6 +108,13 @@ Cmds.aggregate = async(collection, query, pipline)=>{
 Cmds.math = async(collection, query, data)=>{
   try{
     return await apiRequest('math', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
+Cmds.count = async(collection, query, data)=>{
+  try{
+    return await apiRequest('count', collection, query, data)
   }catch(e){
     throw(e)
   }
