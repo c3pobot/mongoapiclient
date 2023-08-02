@@ -112,6 +112,13 @@ Cmds.math = async(collection, query, data)=>{
     throw(e)
   }
 }
+Cmds.next = async(collection, query, data)=>{
+  try{
+    return await apiRequest('next', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
 Cmds.count = async(collection, query, data)=>{
   try{
     return await apiRequest('count', collection, query, data)
