@@ -9,7 +9,6 @@
   "author": "scuba75",
   "license": "ISC",
   "dependencies": {
-    "chalk": "^4.1.0",
     "node-fetch": "^2.6.7"
   }
 }
