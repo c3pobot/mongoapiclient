@@ -57,16 +57,23 @@ const checkMongo = async()=>{
 }
 checkMongo()
 const Cmds = {}
-Cmds.del = async(collection, query, data)=>{
+Cmds.aggregate = async(collection, query, pipline)=>{
   try{
-    return await apiRequest('del', collection, query)
+    return await apiRequest('aggregate', collection, query, pipline)
   }catch(e){
     throw(e)
   }
 }
-Cmds.set = async(collection, query, data)=>{
+Cmds.count = async(collection, query, data)=>{
   try{
-    return await apiRequest('set', collection, query, data)
+    return await apiRequest('count', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
+Cmds.del = async(collection, query, data)=>{
+  try{
+    return await apiRequest('del', collection, query)
   }catch(e){
     throw(e)
   }
@@ -78,33 +85,9 @@ Cmds.find = async(collection, query, project)=>{
     throw(e)
   }
 }
-Cmds.mongoStatus = () =>{
-  return mongoReady
-}
-Cmds.push = async(collection, query, data)=>{
-  try{
-    return await apiRequest('push', collection, query, data)
-  }catch(e){
-    throw(e)
-  }
-}
 Cmds.insert = async(collection, data)=>{
   try{
     return await apiRequest('insert', collection, null, data)
-  }catch(e){
-    throw(e)
-  }
-}
-Cmds.rep = async(collection, query, data)=>{
-  try{
-    return await apiRequest('rep', collection, query, data)
-  }catch(e){
-    throw(e)
-  }
-}
-Cmds.aggregate = async(collection, query, pipline)=>{
-  try{
-    return await apiRequest('aggregate', collection, query, pipline)
   }catch(e){
     throw(e)
   }
@@ -116,6 +99,9 @@ Cmds.math = async(collection, query, data)=>{
     throw(e)
   }
 }
+Cmds.mongoStatus = () =>{
+  return mongoReady
+}
 Cmds.next = async(collection, query, data)=>{
   try{
     return await apiRequest('next', collection, query, data)
@@ -123,11 +109,28 @@ Cmds.next = async(collection, query, data)=>{
     throw(e)
   }
 }
-Cmds.count = async(collection, query, data)=>{
+Cmds.push = async(collection, query, data)=>{
   try{
-    return await apiRequest('count', collection, query, data)
+    return await apiRequest('push', collection, query, data)
   }catch(e){
     throw(e)
   }
+}
+Cmds.rep = async(collection, query, data)=>{
+  try{
+    return await apiRequest('rep', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
+Cmds.set = async(collection, query, data)=>{
+  try{
+    return await apiRequest('set', collection, query, data)
+  }catch(e){
+    throw(e)
+  }
+}
+Cmds.status = ()=>{
+  return mongoReady
 }
 module.exports = Cmds
