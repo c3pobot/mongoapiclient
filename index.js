@@ -1,6 +1,8 @@
 'use strict'
 const path = require('path')
+
 const MONGO_API_URI = process.env.MONGO_API_URI
+console.log(MONGO_API_URI)
 const fetch = require('./fetch')
 let mongoReady = false, retryCount = 10
 
