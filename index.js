@@ -2,7 +2,7 @@
 const path = require('path')
 
 const MONGO_API_URI = process.env.MONGO_API_URI
-console.log(MONGO_API_URI)
+console.log(process.env.MONGO_API_URI)
 const fetch = require('./fetch')
 let mongoReady = false, retryCount = 10
 
@@ -33,10 +33,11 @@ const requestWithRetry = async(uri, opts = {}, count = 0)=>{
 }
 const apiRequest = async(uri, collection, query, data)=>{
   try{
+    console.log(process.env.MONGO_API_URI)
     let payload = {method: 'POST', headers: {'Content-Type': 'application/json'}, compress: true, timeout: 60000}
     let body = { collection: collection, matchCondition: query, data: data }
     payload.body = JSON.stringify(body)
-    let res = await requestWithRetry(path.join(MONGO_API_URI, uri), payload)
+    let res = await requestWithRetry(path.join(process.env.MONGO_API_URI, uri), payload)
     return res?.body
   }catch(e){
     throw(e)
