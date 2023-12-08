@@ -33,7 +33,6 @@ const requestWithRetry = async(uri, opts = {}, count = 0)=>{
 }
 const apiRequest = async(uri, collection, query, data)=>{
   try{
-    console.log(process.env.MONGO_API_URI)
     let payload = {method: 'POST', headers: {'Content-Type': 'application/json'}, compress: true, timeout: 60000}
     let body = { collection: collection, matchCondition: query, data: data }
     payload.body = JSON.stringify(body)
